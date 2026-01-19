@@ -1,24 +1,24 @@
 <p align="center">
-  <img src="assets/logo.png" width="140" alt="IndexHibernate logo" />
+  <img src="assets/logo.png" width="140" alt="Hiberstack logo" />
 </p>
 
-<h1 align="center">IndexHibernate</h1>
+<h1 align="center">Hiberstack</h1>
 
 <p align="center">
   Automatic cold storage & memory lifecycle management for search indexes
 </p>
 
-IndexHibernate is a lightweight sidecar service that sits in front of a search engine (starting with **Typesense**) and automatically **offloads inactive collections** from memory to cold storage (disk / S3), then **reloads them on demand** when traffic returns.
+Hiberstack is a lightweight sidecar service that sits in front of a search engine (starting with **Typesense**) and automatically **offloads inactive collections** from memory to cold storage (disk / S3), then **reloads them on demand** when traffic returns.
 
 It is designed to solve a very specific but recurring operational problem:
 
 > Search engines like Typesense are extremely fast because their indexes live in RAM — but when you have *many collections* with *bursty access patterns*, RAM becomes expensive and eventually blocks writes.
 
-IndexHibernate adds **elasticity** to in-memory search engines *without modifying their internals*.
+Hiberstack adds **elasticity** to in-memory search engines *without modifying their internals*.
 
 ---
 
-## Why IndexHibernate exists
+## Why Hiberstack exists
 
 Typesense (and similar engines) are optimized for:
 
@@ -49,11 +49,11 @@ Today, teams handle this manually using:
 * manual cleanup
 * over-provisioned RAM
 
-IndexHibernate makes this **automatic, safe, and observable**.
+Hiberstack makes this **automatic, safe, and observable**.
 
 ---
 
-## What IndexHibernate does
+## What Hiberstack does
 
 At a high level:
 
@@ -67,11 +67,11 @@ All of this happens **outside** the search engine, as a sidecar.
 
 ---
 
-## What IndexHibernate does NOT try to do
+## What Hiberstack does NOT try to do
 
 This project is intentionally opinionated.
 
-IndexHibernate does **NOT**:
+Hiberstack does **NOT**:
 
 * optimize single, always-hot large collections
 * replace or fork search engines
@@ -83,7 +83,7 @@ If you have:
 * one large collection
 * accessed continuously
 
-IndexHibernate is **not** for you.
+Hiberstack is **not** for you.
 
 ---
 
@@ -91,7 +91,7 @@ IndexHibernate is **not** for you.
 
 ### ✅ Good fit
 
-IndexHibernate is designed for teams that have:
+Hiberstack is designed for teams that have:
 
 * many collections (per project / tenant / workspace)
 * bursty or sporadic access patterns
@@ -124,19 +124,19 @@ Planned (via adapters):
 * Meilisearch
 * OpenSearch / Elasticsearch
 
-IndexHibernate is **engine-agnostic by design**.
+Hiberstack is **engine-agnostic by design**.
 
 ---
 
 ## Architecture overview
 
-IndexHibernate runs as a **standalone sidecar service**.
+Hiberstack runs as a **standalone sidecar service**.
 
 ```
 Client
   │
   ▼
-IndexHibernate (proxy + control plane)
+Hiberstack (proxy + control plane)
   │
   ▼
 Typesense (unmodified)
@@ -154,17 +154,17 @@ Cold storage:
 ### Proxy mode (default)
 
 ```
-Client → IndexHibernate → Typesense
+Client → Hiberstack → Typesense
 ```
 
-* All requests pass through IndexHibernate
+* All requests pass through Hiberstack
 * Enables precise activity tracking
 * Allows transparent reload-on-demand
 * Adds sub-millisecond latency on hot paths
 
 ### Observer mode (future)
 
-* IndexHibernate does not proxy traffic
+* Hiberstack does not proxy traffic
 * Activity inferred from engine metrics
 * No latency impact
 * Limited reload automation
@@ -266,7 +266,7 @@ storage:
 
 ## Safety guarantees
 
-IndexHibernate is designed to be conservative:
+Hiberstack is designed to be conservative:
 
 * Collections are **never deleted** unless snapshot upload succeeds
 * All operations are **idempotent**
@@ -279,13 +279,13 @@ No silent data loss.
 
 ## Observability
 
-IndexHibernate exposes Prometheus metrics:
+Hiberstack exposes Prometheus metrics:
 
-* `indexhibernate_collections_hot`
-* `indexhibernate_collections_cold`
-* `indexhibernate_offloads_total`
-* `indexhibernate_reloads_total`
-* `indexhibernate_reload_duration_seconds`
+* `Hiberstack_collections_hot`
+* `Hiberstack_collections_cold`
+* `Hiberstack_offloads_total`
+* `Hiberstack_reloads_total`
+* `Hiberstack_reload_duration_seconds`
 
 ---
 
@@ -297,7 +297,7 @@ IndexHibernate exposes Prometheus metrics:
 * Works across engines
 * Easier to reason about failures
 
-IndexHibernate manages **lifecycle**, not search logic.
+Hiberstack manages **lifecycle**, not search logic.
 
 ---
 
@@ -328,7 +328,7 @@ Apache 2.0
 
 ## Philosophy
 
-IndexHibernate is intentionally boring.
+Hiberstack is intentionally boring.
 
 No magic. No heuristics. No clever tricks.
 
