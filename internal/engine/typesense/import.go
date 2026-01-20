@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (c *Client) Import(collection string, r io.Reader) error {
+func (c *Client) ImportDocuments(collection string, r io.Reader) error {
 	req, _ := http.NewRequest(
 		"POST",
 		fmt.Sprintf("%s/collections/%s/documents/import?action=upsert", c.BaseURL, collection),
