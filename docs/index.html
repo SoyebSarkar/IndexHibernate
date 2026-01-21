@@ -26,13 +26,13 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             background-color: var(--bg);
             color: var(--text);
             font-family: var(--font-main);
             line-height: 1.6;
             overflow-x: hidden;
-            selection-background-color: var(--accent);
         }
 
         /* Utilities */
@@ -43,6 +43,10 @@
         .grid { display: grid; gap: 2rem; }
         h1, h2, h3 { font-weight: 800; letter-spacing: -0.02em; }
         
+        /* Reveal Animation */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
         /* Nav */
         nav {
             padding: 1.5rem 0;
@@ -54,42 +58,60 @@
             z-index: 100;
         }
         .nav-content { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
-        .logo-box { width: 12px; height: 12px; background: var(--accent); border-radius: 2px; }
+        .logo { font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; text-decoration: none; color: white; }
+        .logo-box { width: 12px; height: 12px; background: var(--accent); border-radius: 2px; animation: pulse-accent 2s infinite; }
+
+        @keyframes pulse-accent {
+            0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); }
+        }
 
         /* Hero */
         .hero { text-align: center; padding: 140px 0 100px; position: relative; }
-        .hero::before {
-            content: "";
-            position: absolute;
-            top: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 400px;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            z-index: -1;
-        }
-        .hero h1 { font-size: 4.5rem; margin-bottom: 1rem; }
+        .hero h1 { font-size: clamp(3rem, 8vw, 4.5rem); margin-bottom: 1rem; }
         .hero p.tagline { font-size: 1.5rem; color: var(--text); font-weight: 500; margin-bottom: 1.5rem; }
         .hero p.subtext { color: var(--text-muted); max-width: 600px; margin: 0 auto 2.5rem; font-size: 1.1rem; }
         
-        .cta-group { display: flex; gap: 1rem; justify-content: center; }
+        .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        
+        /* UPDATED BUTTON ANIMATIONS */
         .btn {
             padding: 0.8rem 1.8rem;
             border-radius: 6px;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
             font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            z-index: 1;
         }
-        .btn-primary { background: var(--accent); color: #000; border: 1px solid var(--accent); }
-        .btn-primary:hover { background: transparent; color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
-        .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
-        .btn-secondary:hover { border-color: var(--text-muted); }
+        .btn-primary { 
+            background: var(--accent); 
+            color: #000; 
+            border: 1px solid var(--accent);
+            box-shadow: 0 4px 0px rgba(0, 242, 255, 0.2);
+        }
+        .btn-primary:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 12px 24px var(--accent-glow);
+            filter: brightness(1.1);
+        }
+        .btn-primary:active { transform: translateY(-1px); }
 
-        /* Sections */
-        h2.section-title { font-size: 2.5rem; margin-bottom: 3rem; text-align: center; }
+        .btn-secondary { 
+            background: rgba(255,255,255,0.03); 
+            color: var(--text); 
+            border: 1px solid var(--border); 
+        }
+        .btn-secondary:hover { 
+            background: rgba(255,255,255,0.08); 
+            border-color: var(--text-muted); 
+            transform: translateY(-4px);
+            color: #fff;
+        }
 
         /* Problem Section */
         .problem-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
@@ -98,25 +120,28 @@
             padding: 2.5rem;
             border: 1px solid var(--border);
             border-radius: 12px;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
-        .card:hover { border-color: #444; }
-        .card h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
-        .card-icon { color: var(--accent); font-size: 1.2rem; }
+        .card:hover { 
+            border-color: #444; 
+            transform: translateY(-5px);
+            background: #151515;
+        }
 
-        /* Lifecycle Diagram */
+        /* UPDATED SOLUTION SECTION ANIMATIONS */
         .lifecycle-viz {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 4rem 0;
-            position: relative;
-            max-width: 900px;
+            max-width: 950px;
             margin: 0 auto;
         }
         .state-node {
-            width: 140px;
-            height: 140px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
             display: flex;
             flex-direction: column;
@@ -124,164 +149,227 @@
             align-items: center;
             background: var(--card-bg);
             border: 2px solid var(--border);
-            z-index: 2;
             text-align: center;
             padding: 10px;
+            transition: all 0.5s ease;
+            position: relative;
+            z-index: 2;
         }
-        .state-node.hot { border-color: var(--hot); box-shadow: 0 0 15px rgba(255, 62, 62, 0.2); }
+        .state-node.hot { border-color: var(--hot); animation: glow-hot 3s infinite ease-in-out; }
         .state-node.draining { border-color: var(--draining); }
         .state-node.cold { border-color: var(--cold); }
-        .state-node.loading { border-color: var(--loading); }
-        .state-node span { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
+        .state-node.loading { border-color: var(--loading); animation: glow-loading 3s infinite ease-in-out; }
         
-        .arrow { flex-grow: 1; height: 2px; background: var(--border); position: relative; }
-        .arrow::after {
-            content: "→";
-            position: absolute;
-            right: 0;
-            top: -12px;
-            color: var(--border);
+        @keyframes glow-hot { 
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 62, 62, 0.1), inset 0 0 5px rgba(255, 62, 62, 0.1); }
+            50% { box-shadow: 0 0 25px rgba(255, 62, 62, 0.4), inset 0 0 10px rgba(255, 62, 62, 0.2); }
+        }
+        @keyframes glow-loading { 
+            0%, 100% { box-shadow: 0 0 5px rgba(157, 0, 255, 0.1); }
+            50% { box-shadow: 0 0 25px rgba(157, 0, 255, 0.4); }
         }
 
-        /* Architecture Section */
+        .arrow { flex-grow: 1; height: 2px; background: var(--border); position: relative; margin: 0 10px; overflow: visible; }
+        .arrow::after {
+            content: "";
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-top: 2px solid var(--border);
+            border-right: 2px solid var(--border);
+            transform: rotate(45deg);
+            right: 0;
+            top: -4px;
+        }
+
+        /* ARROW PULSE ANIMATION */
+        .arrow-pulse {
+            position: absolute;
+            width: 30px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            top: 0;
+            left: -30px;
+            animation: move-pulse 2s infinite linear;
+        }
+
+        @keyframes move-pulse {
+            0% { left: -30%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+
+        /* Architecture Animation */
         .arch-box {
-            background: var(--card-bg);
+            background: #0a0a0a;
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 2rem;
-            margin-top: 2rem;
+            border-radius: 16px;
+            padding: 3rem;
+            position: relative;
         }
         .arch-diagram {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 40px;
         }
         .arch-node {
-            padding: 1rem 2rem;
+            padding: 1.2rem 2.5rem;
             border: 1px solid var(--border);
-            background: #151515;
-            min-width: 220px;
+            background: #111;
+            min-width: 240px;
             text-align: center;
-            border-radius: 4px;
+            border-radius: 8px;
+            z-index: 2;
+            position: relative;
         }
-        .arch-node.highlight { border-color: var(--accent); border-width: 2px; }
-        .arch-sub { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; margin-top: 20px; }
-        .sub-node { font-size: 0.75rem; padding: 10px; background: #0a0a0a; border: 1px solid var(--border); border-radius: 4px; text-align: center; }
-
-        /* Features */
-        .features-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .arch-node.highlight { border-color: var(--accent); background: rgba(0, 242, 255, 0.05); box-shadow: 0 0 30px rgba(0, 242, 255, 0.1); }
         
+        .flow-line {
+            width: 2px;
+            height: 40px;
+            background: var(--border);
+            position: relative;
+        }
+        .data-packet {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: absolute;
+            left: -2px;
+            top: 0;
+            box-shadow: 0 0 10px var(--accent);
+            animation: flow-down 2s infinite linear;
+        }
+        @keyframes flow-down {
+            0% { transform: translateY(-40px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(40px); opacity: 0; }
+        }
+
+        .arch-sub { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; margin-top: 20px; }
+        .sub-node { font-size: 0.75rem; padding: 12px; background: #0f0f0f; border: 1px solid var(--border); border-radius: 6px; text-align: center; transition: 0.3s; }
+        .sub-node:hover { border-color: var(--text-muted); }
+
         /* Code Block */
         .code-block {
             background: #000;
             padding: 2rem;
             border-radius: 12px;
             border: 1px solid var(--border);
-            overflow-x: auto;
+            position: relative;
         }
-        pre { color: #d0d0d0; font-family: var(--font-mono); font-size: 0.9rem; }
+        .code-block::before {
+            content: "Terminal";
+            position: absolute;
+            top: 0; left: 2rem;
+            transform: translateY(-50%);
+            background: var(--bg);
+            padding: 0 10px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
 
-        /* Footer */
-        footer { padding: 60px 0; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); }
+        footer { padding: 80px 0; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); }
 
         @media (max-width: 768px) {
-            .hero h1 { font-size: 3rem; }
             .lifecycle-viz { flex-direction: column; gap: 20px; }
-            .arrow { height: 30px; width: 2px; }
-            .arrow::after { content: "↓"; top: auto; bottom: -10px; right: -6px; }
+            .arrow { height: 40px; width: 2px; margin: 10px 0; }
+            .arrow::after { transform: rotate(135deg); top: auto; bottom: 0; right: -4px; }
+            .arrow-pulse { width: 2px; height: 30px; background: linear-gradient(180deg, transparent, var(--accent), transparent); left: 0; top: -30px; animation: move-pulse-v 2s infinite linear; }
             .arch-sub { grid-template-columns: 1fr 1fr; }
         }
+        @keyframes move-pulse-v { 0% { top: -30%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
     </style>
 </head>
 <body>
 
 <nav>
     <div class="container nav-content">
-        <div class="logo">
+        <a href="https://github.com/SoyebSarkar/Hiberstack" class="logo">
             <div class="logo-box"></div> HIBERSTACK
-        </div>
+        </a>
         <div class="cta-group">
-            <a href="https://github.com/SoyebSarkar/Hiberstack" class="btn btn-secondary" style="padding: 0.4rem 1rem;">GitHub</a>
+            <a href="https://github.com" class="btn btn-secondary" style="padding: 0.4rem 1rem;">GitHub</a>
         </div>
     </div>
 </nav>
 
 <section class="hero container">
-    <h1 class="mono">Hiberstack</h1>
-    <p class="tagline">Keep your search fast. <span class="accent">Hibernate</span> what you don’t use.</p>
-    <p class="subtext">An intelligent lifecycle sidecar for Typesense that prevents memory exhaustion by offloading inactive collections to disk or S3.</p>
-    <div class="cta-group">
+    <h1 class="mono reveal">Hiberstack</h1>
+    <p class="tagline reveal">Keep your search fast. <span class="accent">Hibernate</span> what you don’t use.</p>
+    <p class="subtext reveal">An intelligent lifecycle sidecar for Typesense that prevents memory exhaustion by offloading inactive collections to disk or S3.</p>
+    <div class="cta-group reveal">
         <a href="https://github.com/SoyebSarkar/Hiberstack" class="btn btn-primary">View on GitHub</a>
         <a href="https://github.com/SoyebSarkar/Hiberstack" class="btn btn-secondary">Read the Docs</a>
     </div>
 </section>
 
 <section class="section-padding container">
-    <h2 class="section-title">The Memory Wall</h2>
+    <h2 class="reveal" style="text-align:center; font-size: 2.5rem; margin-bottom: 3rem;">The Memory Wall</h2>
     <div class="grid problem-grid">
-        <div class="card">
-            <h3><span>⚠️</span> RAM-Only Architecture</h3>
+        <div class="card reveal">
+            <h3 style="margin-bottom:1rem">⚠️ RAM-Only Architecture</h3>
             <p>Typesense is blazing fast because it stores indexes in memory. But RAM is expensive and finite.</p>
         </div>
-        <div class="card">
-            <h3><span>🛑</span> Write Blocking</h3>
+        <div class="card reveal">
+            <h3 style="margin-bottom:1rem">🛑 Write Blocking</h3>
             <p>When memory hits the ceiling, Typesense stops accepting writes. Your entire search infrastructure freezes.</p>
         </div>
-        <div class="card">
-            <h3><span>🔧</span> Manual Overhead</h3>
+        <div class="card reveal">
+            <h3 style="margin-bottom:1rem">🔧 Manual Overhead</h3>
             <p>Sharding or deleting old data manually is fragile. Scale requires an automated lifecycle approach.</p>
         </div>
     </div>
 </section>
 
-<section class="section-padding container" style="background: rgba(255,255,255,0.02); border-radius: 40px;">
-    <h2 class="section-title">The Solution</h2>
-    <p style="text-align: center; max-width: 700px; margin: -2rem auto 3rem; color: var(--text-muted);">
-        Hiberstack acts as a smart proxy and manager. It tracks collection usage and moves data between active memory and durable storage based on demand.
+<section class="section-padding container">
+    <h2 class="reveal" style="text-align:center; font-size: 2.5rem; margin-bottom: 1rem;">The Solution</h2>
+    <p class="reveal" style="text-align: center; max-width: 700px; margin: 0 auto 3rem; color: var(--text-muted);">
+        Hiberstack acts as a smart proxy. It tracks usage and moves data between active memory and durable storage based on demand.
     </p>
     
-    
-
-    <div class="lifecycle-viz">
+    <div class="lifecycle-viz reveal">
         <div class="state-node hot">
             <strong>HOT</strong>
-            <span>Active in RAM</span>
+            <span class="mono" style="font-size: 0.6rem; color: var(--text-muted); margin-top:5px;">IN-MEMORY</span>
         </div>
-        <div class="arrow"></div>
+        <div class="arrow"><div class="arrow-pulse"></div></div>
         <div class="state-node draining">
             <strong>DRAINING</strong>
-            <span>Snapshotting</span>
+            <span class="mono" style="font-size: 0.6rem; color: var(--text-muted); margin-top:5px;">SNAPSHOT</span>
         </div>
-        <div class="arrow"></div>
+        <div class="arrow"><div class="arrow-pulse" style="animation-delay: 0.5s;"></div></div>
         <div class="state-node cold">
             <strong>COLD</strong>
-            <span>On Disk / S3</span>
+            <span class="mono" style="font-size: 0.6rem; color: var(--text-muted); margin-top:5px;">S3 / DISK</span>
         </div>
-        <div class="arrow"></div>
+        <div class="arrow"><div class="arrow-pulse" style="animation-delay: 1s;"></div></div>
         <div class="state-node loading">
             <strong>LOADING</strong>
-            <span>Hydrating</span>
+            <span class="mono" style="font-size: 0.6rem; color: var(--text-muted); margin-top:5px;">HYDRATING</span>
         </div>
     </div>
 </section>
 
 <section class="section-padding container">
-    <h2 class="section-title">Lifecycle States</h2>
-    <div class="grid features-grid">
-        <div class="card" style="border-left: 4px solid var(--hot)">
+    <h2 class="reveal" style="text-align:center; font-size: 2.5rem; margin-bottom: 3rem;">Lifecycle States</h2>
+    <div class="grid problem-grid">
+        <div class="card reveal" style="border-top: 4px solid var(--hot)">
             <h3 class="mono">HOT</h3>
             <p>Collection is fully loaded in Typesense. All R/W operations are instantaneous.</p>
         </div>
-        <div class="card" style="border-left: 4px solid var(--draining)">
+        <div class="card reveal" style="border-top: 4px solid var(--draining)">
             <h3 class="mono">DRAINING</h3>
             <p>Writes are buffered/blocked while Hiberstack takes a snapshot and prepares to unload.</p>
         </div>
-        <div class="card" style="border-left: 4px solid var(--cold)">
+        <div class="card reveal" style="border-top: 4px solid var(--cold)">
             <h3 class="mono">COLD</h3>
             <p>Index is deleted from RAM but exists as a compressed snapshot in durable storage.</p>
         </div>
-        <div class="card" style="border-left: 4px solid var(--loading)">
+        <div class="card reveal" style="border-top: 4px solid var(--loading)">
             <h3 class="mono">LOADING</h3>
             <p>Triggered by a query. Hiberstack blocks the request, restores the snapshot, then serves the result.</p>
         </div>
@@ -289,13 +377,17 @@
 </section>
 
 <section class="section-padding container">
-    <h2 class="section-title">Architecture</h2>
-    <div class="arch-box">
+    <h2 class="reveal" style="text-align:center; font-size: 2.5rem; margin-bottom: 3rem;">Architecture</h2>
+    <div class="arch-box reveal">
         <div class="arch-diagram">
             <div class="arch-node">Client (App/Browser)</div>
-            <div style="color: var(--text-muted)">↓ HTTP/gRPC</div>
+            
+            <div class="flow-line"><div class="data-packet"></div></div>
+            
             <div class="arch-node highlight mono">Hiberstack Proxy</div>
-            <div style="color: var(--text-muted)">↓ Local Link</div>
+            
+            <div class="flow-line"><div class="data-packet" style="animation-delay: -1s;"></div></div>
+            
             <div class="arch-node">Typesense Engine</div>
             
             <div class="arch-sub">
@@ -309,56 +401,44 @@
 </section>
 
 <section class="section-padding container">
-    <h2 class="section-title">Who is this for?</h2>
+    <h2 class="reveal" style="text-align:center; font-size: 2.5rem; margin-bottom: 3rem;">Who This Is For</h2>
     <div class="grid problem-grid">
-        <div class="card">
+        <div class="card reveal">
             <h3>Multi-tenant SaaS</h3>
-            <p>Perfect for apps with 10,000+ customers where only 5% are active at any given moment.</p>
+            <p>For apps with 10k+ customers where only a fraction are active at any given moment.</p>
         </div>
-        <div class="card">
-            <h3>Research Tools</h3>
-            <p>Large project-based systems where historical data is searched infrequently but must be fast when accessed.</p>
+        <div class="card reveal">
+            <h3>Research Platforms</h3>
+            <p>Large project-based systems where historical data is searched infrequently but must be available.</p>
         </div>
-        <div class="card">
-            <h3>RAM Ceiling Teams</h3>
-            <p>Infrastructure teams facing $5k/mo+ RAM bills who want to optimize for cost without losing speed.</p>
+        <div class="card reveal">
+            <h3>RAM-Constrained Teams</h3>
+            <p>Teams hitting their RAM ceilings who want to optimize infrastructure costs effectively.</p>
         </div>
     </div>
-    <p style="text-align: center; margin-top: 3rem; color: var(--text-muted);">
-        <small>Note: If you have a single 100GB collection that is always active, Hiberstack won't help you. You need sharding.</small>
-    </p>
 </section>
 
 <section class="section-padding container">
-    <h2 class="section-title">Getting Started</h2>
-    <div class="code-block">
-        <pre># docker-compose.yml
+    <h2 class="reveal" style="text-align:center; font-size: 2.5rem; margin-bottom: 3rem;">Getting Started</h2>
+    <div class="code-block reveal">
+        <pre class="mono" style="color: #a0a0a0;"># Run as a sidecar
 services:
-  typesense:
-    image: typesense/typesense:26.0
-    
   hiberstack:
     image: hiberstack/hiberstack:latest
     environment:
-      - TYPESENSE_API_KEY=xyz
+      - TYPESENSE_API_KEY=${KEY}
       - STORAGE_BACKEND=s3
       - TTL_INACTIVE=3600
     ports:
-      - "8108:8108" # Route your traffic here</pre>
-    </div>
-    <div style="text-align: center; margin-top: 2rem;">
-        <a href="https://github.com/SoyebSarkar/Hiberstack" class="btn btn-primary">Full Installation Guide</a>
+      - "8108:8108" # Proxy port</pre>
     </div>
 </section>
 
-<section class="section-padding container" style="border-top: 1px solid var(--border);">
-    <div style="text-align: center;">
-        <h2 class="mono">Open Source</h2>
-        <p style="margin-bottom: 2rem; color: var(--text-muted);">Licensed under MIT. Built with Go for high performance and low footprint.</p>
-        <div class="cta-group">
-            <a href="https://github.com/SoyebSarkar/Hiberstack" class="btn btn-secondary">Contribute</a>
-            <a href="https://github.com/SoyebSarkar/Hiberstack" class="btn btn-secondary">Sponsor</a>
-        </div>
+<section class="section-padding container reveal" style="text-align: center;">
+    <h2 class="mono">Open Source (MIT)</h2>
+    <p style="margin-bottom: 2.5rem; color: var(--text-muted);">Built with Go for performance. Designed for Typesense communities.</p>
+    <div class="cta-group">
+        <a href="https://github.com/SoyebSarkar/Hiberstack" class="btn btn-primary">Join the Community on GitHub</a>
     </div>
 </section>
 
@@ -367,27 +447,29 @@ services:
         <div class="logo" style="justify-content: center; margin-bottom: 1rem;">
             <div class="logo-box"></div> HIBERSTACK
         </div>
-        <p>Built for the modern search stack. &copy; 2026</p>
+        <p>Keep your search fast. Hibernate what you don’t use.</p>
+        <p style="margin-top: 1rem; font-size: 0.8rem;">&copy; 2026 Hiberstack Project.</p>
     </div>
 </footer>
 
 <script>
-    // Subtle scroll reveal
+    // Intersection Observer for scroll-reveal animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = "1";
-                entry.target.style.transform = "translateY(0)";
+                setTimeout(() => {
+                    entry.target.classList.add('active');
+                }, index * 50);
             }
         });
-    }, { threshold: 0.1 });
+    }, observerOptions);
 
-    document.querySelectorAll('.card').forEach(card => {
-        card.style.opacity = "0";
-        card.style.transform = "translateY(20px)";
-        card.style.transition = "all 0.6s ease-out";
-        observer.observe(card);
-    });
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 </script>
 
 </body>
