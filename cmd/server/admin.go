@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/SoyebSarkar/Hiberstack/internal/engine/typesense"
+	"github.com/SoyebSarkar/Hiberstack/internal/state"
 	"github.com/SoyebSarkar/Hiberstack/snapshot"
 )
 
@@ -14,6 +15,7 @@ func registerAdmin(
 	mux *http.ServeMux,
 	ts *typesense.Client,
 	snapshotDir string,
+	stateStore *state.Store,
 ) {
 	mux.HandleFunc("/admin/reload/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -51,6 +53,7 @@ func registerAdmin(
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		stateStore.Set(collection, state.Hot)
 
 		w.Write([]byte("collection reloaded\n"))
 	})
@@ -100,6 +103,7 @@ func registerAdmin(
 			http.Error(w, "delete failed: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		stateStore.Set(collection, state.Cold)
 
 		w.Write([]byte("collection offloaded\n"))
 	})
