@@ -13,12 +13,17 @@ import (
 func main() {
 	cfg := config.Load()
 	ts := typesense.New(cfg.Typesense.URL, cfg.Typesense.APIKey)
+
+	stateStore, err := state.NewSQLite("./state.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	reloader := &Reloader{
 		ts:          ts,
 		snapshotDir: cfg.SnapshotDir,
+		stateStore:  stateStore,
 	}
-	stateStore := state.New()
-
 	proxy, err := proxy.New(cfg.Typesense.URL, reloader, stateStore)
 	if err != nil {
 		log.Fatal(err)

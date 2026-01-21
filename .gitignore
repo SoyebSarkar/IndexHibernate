@@ -1,0 +1,6 @@
+# SQLite database files
+state.db
+
+
+# Ignore everything under snapshots/
+snapshots/

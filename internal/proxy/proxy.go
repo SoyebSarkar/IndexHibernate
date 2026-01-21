@@ -21,7 +21,7 @@ type Proxy struct {
 	rp         *httputil.ReverseProxy
 	reloader   Reloader
 	stateStore *state.Store
-	inflight   sync.Map 
+	inflight   sync.Map
 }
 
 func New(

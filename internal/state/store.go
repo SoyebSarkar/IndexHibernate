@@ -3,6 +3,14 @@ package state
 // import (
 // 	"database/sql"
 
+type State string
+
+const (
+	Hot     State = "HOT"
+	Cold    State = "COLD"
+	Loading State = "LOADING"
+)
+
 // 	_ "github.com/mattn/go-sqlite3"
 // )
 
