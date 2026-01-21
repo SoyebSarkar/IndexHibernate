@@ -6,11 +6,13 @@ import (
 	"path/filepath"
 
 	"github.com/SoyebSarkar/Hiberstack/internal/engine/typesense"
+	"github.com/SoyebSarkar/Hiberstack/internal/state"
 )
 
 type Reloader struct {
 	ts          *typesense.Client
 	snapshotDir string
+	stateStore  *state.Store
 }
 
 func (r *Reloader) Reload(collection string) {
@@ -38,6 +40,7 @@ func (r *Reloader) Reload(collection string) {
 		log.Println("reload failed (import):", err)
 		return
 	}
+	r.stateStore.Set(collection, state.Hot)
 
 	log.Println("auto reload completed:", collection)
 }
