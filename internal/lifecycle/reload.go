@@ -1,9 +1,12 @@
 package lifecycle
 
 import (
+	"log"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/SoyebSarkar/Hiberstack/internal/metrics"
 	"github.com/SoyebSarkar/Hiberstack/internal/state"
 )
 
@@ -12,6 +15,12 @@ func (m *Manager) Reload(collection string) error {
 	if st != state.Cold {
 		return nil
 	}
+	m.reloadSem <- struct{}{}
+	defer func() {
+		<-m.reloadSem
+	}()
+	start := time.Now()
+	log.Printf("lifecycle reload start collection=%s", collection)
 	m.stateStore.Set(collection, state.Loading)
 
 	baseDir := filepath.Join(m.snapshotDir, collection)
@@ -36,5 +45,8 @@ func (m *Manager) Reload(collection string) error {
 	}
 
 	m.stateStore.Set(collection, state.Hot)
+	log.Printf("lifecycle reload complete collection=%s duration=%s", collection, time.Since(start))
+	metrics.ReloadTotal.Inc()
+	metrics.ReloadDuration.Observe(time.Since(start).Seconds())
 	return nil
 }

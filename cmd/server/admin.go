@@ -4,15 +4,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/SoyebSarkar/Hiberstack/internal/engine/typesense"
 	"github.com/SoyebSarkar/Hiberstack/internal/lifecycle"
 	"github.com/SoyebSarkar/Hiberstack/internal/state"
 )
 
 func registerAdmin(
 	mux *http.ServeMux,
-	ts *typesense.Client,
-	snapshotDir string,
 	lifecycleMgr *lifecycle.Manager,
 	stateStore *state.Store,
 ) {

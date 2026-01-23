@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/SoyebSarkar/Hiberstack/internal/lifecycle"
+	"github.com/SoyebSarkar/Hiberstack/internal/metrics"
 	"github.com/SoyebSarkar/Hiberstack/internal/state"
 )
 
@@ -24,13 +25,15 @@ func New(
 	store *state.Store,
 	lifecycleMgr *lifecycle.Manager,
 	offloadAfter time.Duration,
+	drainGracePeriod time.Duration,
+	interval time.Duration,
 ) *Scheduler {
 	return &Scheduler{
 		store:        store,
 		lifecycleMgr: lifecycleMgr,
 		offloadAfter: offloadAfter,
-		gracePeriod:  30 * time.Second,
-		interval:     10 * time.Minute,
+		gracePeriod:  drainGracePeriod,
+		interval:     interval,
 	}
 }
 
@@ -40,6 +43,7 @@ func (s *Scheduler) Start() {
 	go func() {
 		for range ticker.C {
 			s.runOnce()
+			metrics.UpdateStateGauges(s.store)
 		}
 	}()
 }
@@ -48,7 +52,7 @@ func (s *Scheduler) runOnce() {
 	collections := s.store.ListHotOlderThan(s.offloadAfter)
 
 	for _, c := range collections {
-		log.Println("scheduler marking draining:", c)
+		log.Printf("scheduler marking draining collection=%s idle_for=%s", c, s.offloadAfter.String())
 		s.store.Set(c, state.Draining)
 		go s.drainAndOffload(c)
 	}
@@ -64,6 +68,7 @@ func (s *Scheduler) drainAndOffload(collection string) {
 
 	// Activity resumed → cancel offload
 	if s.store.WasRecentlyAccessed(collection, s.offloadAfter) {
+		log.Printf("scheduler cancel offload collection=%s reason=activity_resumed", collection)
 		log.Println("activity resumed, reverting to HOT:", collection)
 		s.store.Set(collection, state.Hot)
 		return

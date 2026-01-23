@@ -10,38 +10,52 @@ import (
 	"github.com/SoyebSarkar/Hiberstack/internal/proxy"
 	"github.com/SoyebSarkar/Hiberstack/internal/scheduler"
 	"github.com/SoyebSarkar/Hiberstack/internal/state"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
 	cfg := config.Load()
-	ts := typesense.New(cfg.Typesense.URL, cfg.Typesense.APIKey)
 
-	stateStore, err := state.NewSQLite("./state.db")
+	// Initialize Typesense client
+	ts := typesense.New(cfg.TypesenseURL, cfg.TypesenseAPIKey)
+
+	// Initialize state store
+	stateStore, err := state.NewSQLite(cfg.StateDBPath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	lifecycleMgr := lifecycle.NewManager(
+	// Initialize lifecycle manager
+	lifecycleMgr := lifecycle.New(
 		ts,
 		cfg.SnapshotDir,
 		stateStore,
+		cfg.MaxConcurrentReloads,
 	)
+
+	// Initialize and start scheduler
 	scheduler := scheduler.New(
 		stateStore,
 		lifecycleMgr,
 		cfg.OffloadAfter,
+		cfg.DrainGracePeriod,
+		cfg.SchedulerInterval,
 	)
-
 	scheduler.Start()
 
-	proxy, err := proxy.New(cfg.Typesense.URL, lifecycleMgr, stateStore)
+	// Initialize proxy
+	proxy, err := proxy.New(cfg.TypesenseURL, lifecycleMgr, stateStore, cfg.ReloadMode)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Setup HTTP server with admin routes and proxy fallback
 	mux := http.NewServeMux()
 
+	// Prometheus metrics endpoint
+	mux.Handle("/metrics", promhttp.Handler())
+
 	// 1️⃣ Register admin routes FIRST
-	registerAdmin(mux, ts, cfg.SnapshotDir, lifecycleMgr, stateStore)
+	registerAdmin(mux, lifecycleMgr, stateStore)
 
 	// 2️⃣ Attach proxy as fallback
 	mux.Handle("/", proxy)

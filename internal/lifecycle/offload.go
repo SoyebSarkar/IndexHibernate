@@ -1,8 +1,10 @@
 package lifecycle
 
 import (
+	"log"
 	"path/filepath"
 
+	"github.com/SoyebSarkar/Hiberstack/internal/metrics"
 	"github.com/SoyebSarkar/Hiberstack/internal/state"
 	"github.com/SoyebSarkar/Hiberstack/snapshot"
 )
@@ -12,7 +14,7 @@ func (m *Manager) Offload(collection string) error {
 	if st != state.Draining {
 		return nil
 	}
-
+	log.Printf("lifecycle offload start collection=%s", collection)
 	baseDir := filepath.Join(m.snapshotDir, collection)
 
 	schema, err := m.ts.GetSchema(collection)
@@ -39,5 +41,7 @@ func (m *Manager) Offload(collection string) error {
 	}
 
 	m.stateStore.Set(collection, state.Cold)
+	metrics.OffloadTotal.Inc()
+
 	return nil
 }

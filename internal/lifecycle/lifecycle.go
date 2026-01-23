@@ -9,16 +9,19 @@ type Manager struct {
 	ts          *typesense.Client
 	snapshotDir string
 	stateStore  *state.Store
+	reloadSem   chan struct{}
 }
 
-func NewManager(
+func New(
 	ts *typesense.Client,
 	snapshotDir string,
 	stateStore *state.Store,
+	maxConcurrentReloads int,
 ) *Manager {
 	return &Manager{
 		ts:          ts,
 		snapshotDir: snapshotDir,
 		stateStore:  stateStore,
+		reloadSem:   make(chan struct{}, maxConcurrentReloads),
 	}
 }

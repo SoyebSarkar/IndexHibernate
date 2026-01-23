@@ -40,11 +40,17 @@ func (s *Store) Touch(collection string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.db.Exec(`
+	now := time.Now().UTC()
+
+	_, err := s.db.Exec(`
 		UPDATE collection_state
-		SET last_accessed_at = CURRENT_TIMESTAMP
+		SET last_accessed_at = ?
 		WHERE collection = ?
-	`, collection)
+	`, now, collection)
+
+	if err != nil {
+		log.Printf("Touch failed for %s: %v", collection, err)
+	}
 }
 
 func (s *Store) Exists(collection string) bool {
@@ -119,14 +125,15 @@ func (s *Store) ListHotOlderThan(d time.Duration) []string {
 
 func (s *Store) WasRecentlyAccessed(collection string, d time.Duration) bool {
 	var count int
+	cutoff := time.Now().UTC().Add(-d)
 
 	err := s.db.QueryRow(`
 		SELECT COUNT(1)
 		FROM collection_state
 		WHERE collection = ?
 		  AND last_accessed_at IS NOT NULL
-		  AND last_accessed_at > DATETIME('now', ?)
-	`, collection, "-"+d.String()).Scan(&count)
+		  AND last_accessed_at > ?
+	`, collection, cutoff).Scan(&count)
 
 	if err != nil {
 		return false
@@ -147,4 +154,25 @@ func (s *Store) initSchema() error {
 
 	_, err := s.db.Exec(schema)
 	return err
+}
+
+func (s *Store) CountByState() map[State]int {
+	rows, err := s.db.Query(`
+		SELECT state, COUNT(state)
+		FROM collection_state
+		GROUP BY state
+	`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	out := make(map[State]int)
+	for rows.Next() {
+		var st string
+		var count int
+		rows.Scan(&st, &count)
+		out[State(st)] = count
+	}
+	return out
 }
