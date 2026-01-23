@@ -6,9 +6,10 @@ package state
 type State string
 
 const (
-	Hot     State = "HOT"
-	Cold    State = "COLD"
-	Loading State = "LOADING"
+	Hot      State = "HOT"
+	Draining State = "DRAINING"
+	Cold     State = "COLD"
+	Loading  State = "LOADING"
 )
 
 // 	_ "github.com/mattn/go-sqlite3"
